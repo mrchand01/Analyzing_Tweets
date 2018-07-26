@@ -1,2 +1,2 @@
-# Endangered_Languages
-Twitter Data Analysis
+# Analyzing_Tweets
+Comparing and contrasting Obama and Trump tweets
