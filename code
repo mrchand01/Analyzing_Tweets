@@ -1,0 +1,68 @@
+import nltk
+
+def get_tweet_tokens(filename): 
+    tokens = []
+    tokens_final = []
+    with open(filename, 'r', encoding = 'UTF-8') as tweets: 
+        for line in tweets:               
+            data = line.translate(line.maketrans("   ",'   ',".?!,:;«»-_/")).upper().replace('&AMP', 'AND ').split()
+            tokens.extend(data[:])
+        for i in tokens:
+            if i.startswith('HTTP') == False:
+                tokens_final.append(i)
+        return tokens_final
+    
+
+def subset_tokens(tokens, identifier, start = True): 
+    subset = []
+    for i in tokens:
+        if(start == True and i.startswith(identifier)):
+            subset.append(i)
+        elif(start == False and identifier in i):
+            subset.append(i)
+    return subset
+
+def diff_tokens(tokens1, tokens2): 
+    tokens1 = set(tokens1)
+    tokens2 = set(tokens2)
+    combo = tokens1.symmetric_difference(tokens2)
+    return combo
+
+def get_rt_users(tokens): 
+    retweeted = []
+    for i in range(0, len(tokens), 1):
+        if(tokens[i] == 'RT'): 
+            data = tokens[i+1].translate(tokens[i+1].maketrans(' ',' ',"@:"))
+            retweeted.append(data) 
+    return retweeted
+
+if __name__ == "__main__": 
+    tokens = get_tweet_tokens('Obama_tweet_text.txt')
+    Obama = nltk.Text(tokens)
+    Obama.collocations(10)
+    subset_1 = subset_tokens(tokens, '#', start = True)
+    print(subset_1)
+    subset_2 = subset_tokens(tokens, '#', start = False)
+    print(subset_2)
+    print(diff_tokens(subset_1, subset_2))
+    common = nltk.FreqDist(subset_1)
+    print(common.most_common(10))
+    total_hashtag = len(subset_1)
+    print(total_hashtag)
+    rt = get_rt_users(tokens)
+    reet = set(rt)
+    print(reet)
+    common_2 = nltk.FreqDist(rt)
+    print(common_2.most_common(10))
+    single_occur = []
+    for i in rt:
+        if(rt.count(i) == 1):
+            single_occur.append(i)
+    print(single_occur)
+
+def remove_rts(input_file, outfile): 
+    with open(input_file,'r',encoding='UTF-8') as tweets:
+        with open(outfile,'w',encoding='UTF-8') as no_rt:
+            for line in tweets:
+                if (line.startswith('RT') == False):     
+                    no_rt.writelines(line)
